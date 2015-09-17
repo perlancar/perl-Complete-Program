@@ -1,5 +1,10 @@
 Revision history for Complete-Program
 
+0.37    2015-09-17 (PERLANCAR)
+
+	- Add fuzzy & map_case options.
+
+
 0.36    2015-09-16 (PERLANCAR)
 
         - First release, split from Complete-Util following the splitting of
