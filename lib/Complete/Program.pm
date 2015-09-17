@@ -31,8 +31,10 @@ Windows is supported, on Windows PATH will be split using /;/ instead of /:/.
 
 _
     args => {
-        word  => { schema=>[str=>{default=>''}], pos=>0, req=>1 },
-        ci    => { schema=>'bool' },
+        word     => { schema=>[str=>{default=>''}], pos=>0, req=>1 },
+        ci       => { schema=>'bool' },
+        fuzzy    => { schema=>['int*', min=>0] },
+        map_case => { schema=>'bool' },
     },
     result_naked => 1,
     result => {
@@ -40,24 +42,27 @@ _
     },
 };
 sub complete_program {
-    require List::MoreUtils;
+    require Complete::Util;
 
     my %args = @_;
-    my $word = $args{word} // "";
-    my $ci   = $args{ci} // $Complete::Setting::OPT_CI;
+    my $word     = $args{word} // "";
+    my $ci       = $args{ci} // $Complete::Setting::OPT_CI;
+    my $fuzzy    = $args{fuzzy} // $Complete::Setting::OPT_FUZZY;
+    my $map_case = $args{map_case} // $Complete::Setting::OPT_MAP_CASE;
 
-    my $word_re = $ci ? qr/\A\Q$word/i : qr/\A\Q$word/;
-
-    my @res;
     my @dirs = split(($^O =~ /Win32/ ? qr/;/ : qr/:/), $ENV{PATH});
+    my @all_progs;
     for my $dir (@dirs) {
         opendir my($dh), $dir or next;
         for (readdir($dh)) {
-            push @res, $_ if $_ =~ $word_re && !(-d "$dir/$_") && (-x _);
-        };
+            push @all_progs, $_ if !(-d "$dir/$_") && (-x _);
+        }
     }
 
-    [sort(List::MoreUtils::uniq(@res))];
+    Complete::Util::complete_array_elem(
+        word => $word, array => \@all_progs,
+        ci=>$ci, fuzzy=>$fuzzy, map_case=>$map_case,
+    );
 }
 
 1;

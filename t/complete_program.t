@@ -8,9 +8,11 @@ use File::Slurp::Tiny qw(write_file);
 use File::Temp qw(tempdir);
 use Filesys::Cap qw(fs_is_cs);
 use Test::More 0.98;
-use Complete::Util qw(complete_program);
+use Complete::Program qw(complete_program);
 
 sub mkexe { write_file($_[0], ""); chmod 0755, $_[0] }
+
+local $Complete::Setting::OPT_FUZZY = 0;
 
 my $dir = tempdir(CLEANUP=>1);
 mkdir("$dir/dir1");
@@ -49,8 +51,13 @@ subtest "ci" => sub {
     local $^O = 'linux';
     local $ENV{PATH} = "$dir/dir1:$dir/dir2";
 
-    is_deeply(complete_program(word=>"prog", ci=>1),
-              [sort("prog1.bat","prog2.bat","prog3.bat","Prog3","Prog4")]);
+    my $res = complete_program(word=>"prog", ci=>1);
+    is_deeply($res,
+              ["prog1.bat","prog2.bat","Prog3","prog3.bat","Prog4"])
+        or diag explain $res;
 };
+
+# XXX test opt:fuzzy
+# XXX test opt:map_case
 
 done_testing;
