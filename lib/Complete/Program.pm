@@ -7,7 +7,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-use Complete::Setting;
+use Complete::Common qw(:all);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -46,9 +46,6 @@ sub complete_program {
 
     my %args = @_;
     my $word     = $args{word} // "";
-    my $ci       = $args{ci} // $Complete::Setting::OPT_CI;
-    my $fuzzy    = $args{fuzzy} // $Complete::Setting::OPT_FUZZY;
-    my $map_case = $args{map_case} // $Complete::Setting::OPT_MAP_CASE;
 
     my @dirs = split(($^O =~ /Win32/ ? qr/;/ : qr/:/), $ENV{PATH});
     my @all_progs;
@@ -61,7 +58,6 @@ sub complete_program {
 
     Complete::Util::complete_array_elem(
         word => $word, array => \@all_progs,
-        ci=>$ci, fuzzy=>$fuzzy, map_case=>$map_case,
     );
 }
 
