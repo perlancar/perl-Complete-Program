@@ -4,13 +4,13 @@ use 5.010;
 use strict;
 use warnings;
 
-use File::Slurp::Tiny qw(write_file);
+use File::Slurper qw(write_text);
 use File::Temp qw(tempdir);
 use Filesys::Cap qw(fs_is_cs);
 use Test::More 0.98;
 use Complete::Program qw(complete_program);
 
-sub mkexe { write_file($_[0], ""); chmod 0755, $_[0] }
+sub mkexe { write_text($_[0], ""); chmod 0755, $_[0] }
 
 local $Complete::Common::OPT_CI = 0;
 local $Complete::Common::OPT_MAP_CASE = 0;
